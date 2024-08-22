@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Evaluación{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Detalle de Evaluación</h1>
+    <p>Fecha y Hora: {{ resultado_examen.fecha_hora }}</p>
+    <p>Puntuación Final: {{ resultado_examen.puntuacion }}</p>
+
+    <h3>Preguntas Contestadas</h3>
+    <ul class="list-group">
+        {% for pregunta in preguntas_contestadas.preguntas %}
+            <li class="list-group-item">
+                Pregunta {{ pregunta.pregunta_id }} -
+                {% if pregunta.respuesta_correcta %}
+                    <span class="text-success">Correcta</span>
+                {% else %}
+                    <span class="text-danger">Incorrecta</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

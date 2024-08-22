@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios Registrados{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1 class="mb-4">Usuarios Registrados</h1>
+        
+        <!-- Iterar sobre los usuarios y crear una card para cada uno -->
+        {% for usuario in usuarios %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ usuario.username }}</h5>
+                        <p class="card-text">
+                            <strong>Nombre Completo:</strong> {{ usuario.get_full_name }}<br>
+                            <strong>Email:</strong> {{ usuario.email }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    No hay usuarios registrados.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

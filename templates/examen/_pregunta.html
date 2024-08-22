@@ -1,0 +1,20 @@
+<div id="pregunta-container" class="mt-4">
+    <h5 class="card-title">Pregunta {{ page_obj.number }}:</h5>
+    {% if pregunta_actual %}
+        <p class="card-text">{{ pregunta_actual.enunciado }}</p>
+        <form id="respuesta-form" method="post">
+            {% csrf_token %}
+            {% for respuesta in respuestas %}
+                <div class="form-check marcando">
+                    <input class="form-check-input" type="radio" name="respuesta" id="respuesta{{ respuesta.id }}" value="{{ respuesta.id }}">
+                    <label class="form-check-label" for="respuesta{{ respuesta.id }}">
+                        {{ respuesta.texto }}
+                    </label>
+                </div>
+            {% endfor %}
+            <button type="button" class="btn btn-primary mt-3" onclick="siguientePregunta()">Siguiente Pregunta</button>
+        </form>
+    {% else %}
+        <p class="card-text">No hay preguntas disponibles.</p>
+    {% endif %}
+</div>

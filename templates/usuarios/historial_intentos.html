@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Intentos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Historial de Intentos</h1>
+    <ul class="list-group">
+        {% for intento in intentos %}
+            <li class="list-group-item">
+                Intento {{ forloop.counter }} - {{ intento.fecha_hora }}
+                {% if intento.resultado_examen %}
+                    <br>Resultado: Puntuación {{ intento.resultado_examen.puntuacion }}
+                {% endif %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">No hay intentos registrados.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

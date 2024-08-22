@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluación - Sistema de Evaluación{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Temporizador -->
+    <div class="alert alert-info fixed-top text-center" style="z-index: 1030;">
+        <h4 class="mb-0">Tiempo Restante: <span id="timer">00:00:00</span></h4>
+    </div>
+
+    <div class="row mt-5 pt-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Evaluación de Conocimientos</h4>
+                </div>
+                <div class="card-body">
+                    <div id="pregunta-container" class="mt-4">
+                        <h5 class="card-title">Pregunta {{ page_obj.number }}:</h5>
+                        {% if pregunta_actual %}
+                            <p class="card-text">{{ pregunta_actual.enunciado }}</p>
+                        {% else %}
+                            <p class="card-text">No hay preguntas disponibles.</p>
+                        {% endif %}
+                        <form method="get" action="{% url 'examen' %}">
+    {% csrf_token %}
+    {% if respuestas %}
+        {% for respuesta in respuestas %}
+            <div class="form-check marcando">
+                <input class="form-check-input" type="radio" name="respuesta" id="respuesta{{ respuesta.id }}" value="{{ respuesta.id }}">
+                <label class="form-check-label" for="respuesta{{ respuesta.id }}">
+                    {{ respuesta.texto }}
+                </label>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay respuestas para esta pregunta.</p>
+    {% endif %}
+    <button type="submit" class="btn btn-primary mt-3">Siguiente Pregunta</button>
+</form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}<span class="visually-hidden">(current)</span></span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tiempoAgotadoModal" tabindex="-1" aria-labelledby="tiempoAgotadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tiempoAgotadoModalLabel">Tiempo Agotado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>El tiempo para la evaluación se ha agotado. Por favor, finaliza el examen.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="{% url 'finalizar_examen' %}" class="btn btn-primary">Finalizar Examen</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const tiempoTotal = parseInt('{{ tiempo_total }}', 10);
+
+    function actualizarTemporizador() {
+        const ahora = new Date().getTime();
+        const fin = parseInt(localStorage.getItem('finTiempo'), 10);
+        const tiempoRestante = Math.max(0, Math.floor((fin - ahora) / 1000));
+
+        if (tiempoRestante <= 0) {
+            document.getElementById('timer').textContent = '00:00:00';
+            const tiempoAgotadoModal = new bootstrap.Modal(document.getElementById('tiempoAgotadoModal'));
+            tiempoAgotadoModal.show();
+            return;
+        }
+
+        const minutos = Math.floor(tiempoRestante / 60);
+        const segundos = tiempoRestante % 60;
+        const horas = Math.floor(minutos / 60);
+        const minutosRestantes = minutos % 60;
+
+        document.getElementById('timer').textContent =
+            String(horas).padStart(2, '0') + ':' +
+            String(minutosRestantes).padStart(2, '0') + ':' +
+            String(segundos).padStart(2, '0');
+
+        setTimeout(actualizarTemporizador, 1000);
+    }
+
+    function iniciarTemporizador() {
+        const ahora = new Date().getTime();
+        const fin = ahora + tiempoTotal * 1000;
+        localStorage.setItem('finTiempo', fin);
+        actualizarTemporizador();
+    }
+
+    document.addEventListener('DOMContentLoaded', iniciarTemporizador);
+</script>
+
+{% endblock %}
